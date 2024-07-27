@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Note Service</title>
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<div id="app">
+		<h1>Note Service</h1>
+		<div id="note-list"></div>
+		<button onclick="showCreateNoteForm()">Create Note</button>
+		<div id="note-form" style="display: none;">
+			<input type="text" id="note-title" placeholder="Title">
+			<textarea id="note-content" placeholder="Content"></textarea>
+			<button onclick="createNote()">Save</button>
+			<button onclick="hideCreateNoteForm()">Cancel</button>
+		</div>
+	</div>
+	<script src="js/scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 0;
+}
+
+#app {
+	max-width: 600px;
+	margin: 20px auto;
+	padding: 20px;
+	background: white;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+	text-align: center;
+}
+
+#note-form {
+	margin-top: 20px;
+}
+
+#note-form input,
+#note-form textarea {
+	width: 100%;
+	margin-bottom: 10px;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+#note-list {
+	margin-top: 20px;
+}
+
+.note-item {
+	padding: 10px;
+	border: 1px solid #ddd;
+	margin-bottom: 10px;
+	background: #fafafa;
+}
