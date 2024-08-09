@@ -3,7 +3,7 @@
 A simple note service with a backend in Golang and a frontend in native HTML, CSS, and JavaScript.
 
 ## Project Structure
-
+```bash
 note-service/
 ├── frontend/
 │ ├── css/
@@ -26,7 +26,7 @@ note-service/
 ├── go.sum
 ├── main.go
 └── README.md
-
+```
 ## Getting Started
 
 ### Prerequisites
