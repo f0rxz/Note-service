@@ -2,69 +2,80 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"note-service/models"
 	"note-service/storage"
 	"note-service/utils"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
-var noteStore = storage.NewMemoryStorage()
+var noteStorage, _ = storage.NewStorage("notes.db", time.Second*5)
 
 func GetNotes(w http.ResponseWriter, r *http.Request) {
-	notes := noteStore.GetAll()
-	if notes == nil {
-		notes = []*models.Note{}
-	}
+	const limit = 25
+	vars := mux.Vars(r)
+	page, _ := strconv.ParseInt(vars["page"], 10, 64)
+	notes := noteStorage.GetNotesRange(page*limit, limit)
 	utils.RespondWithJSON(w, http.StatusOK, notes)
 }
 
 func CreateNote(w http.ResponseWriter, r *http.Request) {
-	var note models.Note
-	json.NewDecoder(r.Body).Decode(&note)
-	note.ID = generateID() // Generate a unique ID for the note
-	noteStore.Create(&note)
-	utils.RespondWithJSON(w, http.StatusCreated, note)
+	r.ParseForm()
+	title := r.FormValue("title")
+	content := r.FormValue("content")
+
+	noteStorage.CreateNote(title, content)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func GetNote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
-	note, found := noteStore.Get(id)
-	if !found {
-		utils.RespondWithError(w, http.StatusNotFound, "Note not found")
+	idStr := vars["id"]
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid note ID")
 		return
 	}
-	utils.RespondWithJSON(w, http.StatusOK, note)
+
+	note := noteStorage.GetNote(id)
+	if note != nil {
+		utils.RespondWithJSON(w, http.StatusOK, note)
+		return
+	}
+	utils.RespondWithError(w, http.StatusNotFound, "Note not found")
 }
 
 func UpdateNote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
-	var note models.Note
-	json.NewDecoder(r.Body).Decode(&note)
-	updatedNote, err := noteStore.Update(id, &note)
+	idStr := vars["id"]
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusNotFound, "Note not found")
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid note ID")
 		return
 	}
-	utils.RespondWithJSON(w, http.StatusOK, updatedNote)
+
+	var note models.Note
+	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	noteStorage.UpdateNote(id, &note)
+	utils.RespondWithJSON(w, http.StatusOK, note)
 }
 
 func DeleteNote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
-	err := noteStore.Delete(id)
+	idStr := vars["id"]
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusNotFound, "Note not found")
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid note ID")
 		return
 	}
-	utils.RespondWithJSON(w, http.StatusNoContent, nil)
-}
 
-func generateID() string {
-	return fmt.Sprintf("%d", time.Now().UnixNano())
+	noteStorage.DeleteNote(id)
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

@@ -18,8 +18,7 @@ note-service/
 ├── routers/
 │ └── router.go
 ├── storage/
-│ ├── memory.go
-│ └── storage.go.todo
+│ └── storage.go
 ├── utils/
 │ └── response.go
 ├── .gitignore
@@ -96,13 +95,12 @@ Contains handlers for API endpoints.
 
 Defines the `Note` model.
 
-#### `storage/memory.go`
+#### `storage/storage.go`
 
-Implements in-memory storage for notes.
-
-#### `storage/storage.go.todo`
-
-A placeholder for additional storage backends. This file can be used to implement different storage mechanisms, such as database storage or file-based storage, to replace or augment the in-memory storage. It provides a structure for future expansion of the storage capabilities of the application.
+Concurrent Safe: Employs synchronization mechanisms (sync.Mutex) to ensure thread-safe operations.
+Periodic Persistence: Automatically saves notes at regular intervals using a ticker, reducing the risk of data loss.
+Write Caching: Implements a write cache that batches and optimizes database write operations for efficiency.
+Graceful Shutdown: Ensures all ongoing operations are completed before shutting down, preventing data corruption.
 
 #### `utils/response.go`
 
